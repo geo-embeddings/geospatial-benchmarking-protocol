@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, StaticPool, create_engine
 
-import gbp  # noqa: F401 — registers all models on SQLModel.metadata
+import gbp_server.models  # noqa: F401 — registers all models on SQLModel.metadata
 from gbp_server import app, db
 
 

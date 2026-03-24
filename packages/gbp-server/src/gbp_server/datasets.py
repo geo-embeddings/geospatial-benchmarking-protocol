@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from gbp import Dataset
+from gbp_server.models import Dataset
 from sqlmodel import Session, select
 
 from gbp_server import db

@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from gbp import Dataset, PretrainedModel, Result, Runner
+from gbp_server.models import Dataset, PretrainedModel, Result, Runner
 from sqlmodel import Session, select
 
 from gbp_server import db

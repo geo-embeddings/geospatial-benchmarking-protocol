@@ -326,12 +326,6 @@ wheels = [
 name = "gbp"
 version = "0.1.0"
 source = { editable = "packages/gbp" }
-dependencies = [
-    { name = "sqlmodel" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "sqlmodel", specifier = ">=0.0.24" }]
 
 [[package]]
 name = "gbp-infra"
@@ -356,7 +350,6 @@ version = "0.1.0"
 source = { editable = "packages/gbp-server" }
 dependencies = [
     { name = "fastapi", extra = ["standard"] },
-    { name = "gbp" },
     { name = "sqlmodel" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -364,7 +357,6 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.135.2" },
-    { name = "gbp", editable = "packages/gbp" },
     { name = "sqlmodel", specifier = ">=0.0.24" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.42.0" },
 ]

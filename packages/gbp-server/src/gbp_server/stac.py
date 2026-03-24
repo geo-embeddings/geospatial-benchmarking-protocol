@@ -3,7 +3,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlmodel import Session, select
 
-from gbp import Dataset
+from gbp_server.models import Dataset
 from gbp_server import db
 
 router = APIRouter(prefix="/stac", tags=["stac"])
