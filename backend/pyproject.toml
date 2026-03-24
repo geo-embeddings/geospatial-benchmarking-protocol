@@ -1,0 +1,26 @@
+[project]
+name = "gbp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Pete Gadomski", email = "pete.gadomski@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.135.2",
+    "uvicorn[standard]>=0.42.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.12,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.7",
+    "ty>=0.0.24",
+]
+
+[tool.ruff]
+src = ["src"]
