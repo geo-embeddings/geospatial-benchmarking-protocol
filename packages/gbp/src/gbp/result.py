@@ -8,3 +8,4 @@ class Result(SQLModel, table=True):
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     dataset_id: UUID = Field(foreign_key="dataset.id")
+    pipeline_id: UUID = Field(foreign_key="pipeline.id")

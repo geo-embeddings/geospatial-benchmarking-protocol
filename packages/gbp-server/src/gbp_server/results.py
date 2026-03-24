@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from gbp import Dataset, Result
+from gbp import Dataset, Pipeline, Result
 from sqlmodel import Session, select
 
 from gbp_server import db
@@ -15,6 +15,8 @@ def create_result(
 ) -> dict[str, UUID]:
     if not session.get(Dataset, result.dataset_id):
         raise HTTPException(status_code=422, detail="Dataset not found")
+    if not session.get(Pipeline, result.pipeline_id):
+        raise HTTPException(status_code=422, detail="Pipeline not found")
     session.add(result)
     session.commit()
     session.refresh(result)
@@ -43,6 +45,8 @@ def update_result(
         raise HTTPException(status_code=404, detail="Result not found")
     if not session.get(Dataset, result.dataset_id):
         raise HTTPException(status_code=422, detail="Dataset not found")
+    if not session.get(Pipeline, result.pipeline_id):
+        raise HTTPException(status_code=422, detail="Pipeline not found")
     existing.sqlmodel_update(result.model_dump(exclude={"id"}))
     session.add(existing)
     session.commit()
