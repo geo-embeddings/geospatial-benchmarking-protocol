@@ -35,7 +35,7 @@ def list_results(
             d.id for d in session.exec(select(Dataset)).all() if tag in d.tags
         ]
         return list(
-            session.exec(select(Result).where(Result.dataset_id.in_(dataset_ids))).all()
+            session.exec(select(Result).where(Result.dataset_id.in_(dataset_ids))).all()  # type: ignore[unresolved-attribute]
         )
     return list(session.exec(select(Result)).all())
 
