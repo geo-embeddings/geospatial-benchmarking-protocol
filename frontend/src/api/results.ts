@@ -2,8 +2,9 @@ import type { components } from "./types";
 
 type Result = components["schemas"]["Result"];
 
-export async function listResults(): Promise<Result[]> {
-  const res = await fetch("/api/results/");
+export async function listResults(tag?: string): Promise<Result[]> {
+  const url = tag ? `/api/results/?tag=${encodeURIComponent(tag)}` : "/api/results/";
+  const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch results");
   return res.json();
 }

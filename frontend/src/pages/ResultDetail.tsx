@@ -34,7 +34,7 @@ export default function ResultDetail() {
     <Box>
       <HStack gap={2} mb={4}>
         <Link to="/results">
-          <Text color="blue.500">Results</Text>
+          <Text color="brand.500">Results</Text>
         </Link>
         <Text color="fg.muted">/</Text>
         <Text>{id?.slice(0, 8)}...</Text>
@@ -61,7 +61,7 @@ export default function ResultDetail() {
                   Dataset
                 </Text>
                 <Link to={`/datasets/${result.dataset_id}`}>
-                  <Code color="blue.500">{result.dataset_id}</Code>
+                  <Code color="brand.500">{result.dataset_id}</Code>
                 </Link>
               </Box>
             </Stack>

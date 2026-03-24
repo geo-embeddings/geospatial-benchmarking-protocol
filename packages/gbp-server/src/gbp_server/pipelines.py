@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from gbp import Pipeline
+from gbp import Decoder, Encoder, Pipeline
 from sqlmodel import Session, select
 
 from gbp_server import db
@@ -13,6 +13,10 @@ router = APIRouter(prefix="/api/pipelines", tags=["pipelines"])
 def create_pipeline(
     pipeline: Pipeline, session: Session = Depends(db.get_session)
 ) -> dict[str, UUID]:
+    if not session.get(Encoder, pipeline.encoder_id):
+        raise HTTPException(status_code=422, detail="Encoder not found")
+    if not session.get(Decoder, pipeline.decoder_id):
+        raise HTTPException(status_code=422, detail="Decoder not found")
     session.add(pipeline)
     session.commit()
     session.refresh(pipeline)
@@ -39,6 +43,10 @@ def update_pipeline(
     existing = session.get(Pipeline, id)
     if not existing:
         raise HTTPException(status_code=404, detail="Pipeline not found")
+    if not session.get(Encoder, pipeline.encoder_id):
+        raise HTTPException(status_code=422, detail="Encoder not found")
+    if not session.get(Decoder, pipeline.decoder_id):
+        raise HTTPException(status_code=422, detail="Decoder not found")
     existing.sqlmodel_update(pipeline.model_dump(exclude={"id"}))
     session.add(existing)
     session.commit()

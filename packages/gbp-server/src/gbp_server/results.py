@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from gbp import Dataset, Pipeline, Result
+from gbp import Dataset, PretrainedModel, Result, Runner
 from sqlmodel import Session, select
 
 from gbp_server import db
@@ -15,8 +15,10 @@ def create_result(
 ) -> dict[str, UUID]:
     if not session.get(Dataset, result.dataset_id):
         raise HTTPException(status_code=422, detail="Dataset not found")
-    if not session.get(Pipeline, result.pipeline_id):
-        raise HTTPException(status_code=422, detail="Pipeline not found")
+    if not session.get(PretrainedModel, result.pretrained_model_id):
+        raise HTTPException(status_code=422, detail="Pretrained model not found")
+    if not session.get(Runner, result.runner_id):
+        raise HTTPException(status_code=422, detail="Runner not found")
     session.add(result)
     session.commit()
     session.refresh(result)
@@ -24,7 +26,18 @@ def create_result(
 
 
 @router.get("/")
-def list_results(session: Session = Depends(db.get_session)) -> list[Result]:
+def list_results(
+    session: Session = Depends(db.get_session), tag: str | None = None
+) -> list[Result]:
+    if tag:
+        dataset_ids = [
+            d.id
+            for d in session.exec(select(Dataset)).all()
+            if tag in d.tags
+        ]
+        return list(
+            session.exec(select(Result).where(Result.dataset_id.in_(dataset_ids))).all()
+        )
     return list(session.exec(select(Result)).all())
 
 
@@ -45,8 +58,10 @@ def update_result(
         raise HTTPException(status_code=404, detail="Result not found")
     if not session.get(Dataset, result.dataset_id):
         raise HTTPException(status_code=422, detail="Dataset not found")
-    if not session.get(Pipeline, result.pipeline_id):
-        raise HTTPException(status_code=422, detail="Pipeline not found")
+    if not session.get(PretrainedModel, result.pretrained_model_id):
+        raise HTTPException(status_code=422, detail="Pretrained model not found")
+    if not session.get(Runner, result.runner_id):
+        raise HTTPException(status_code=422, detail="Runner not found")
     existing.sqlmodel_update(result.model_dump(exclude={"id"}))
     session.add(existing)
     session.commit()

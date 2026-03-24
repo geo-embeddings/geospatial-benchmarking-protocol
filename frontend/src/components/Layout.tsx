@@ -4,7 +4,7 @@ import { Link, Outlet } from "react-router";
 export default function Layout() {
   return (
     <Box minH="100vh">
-      <Box as="nav" bg="blue.600" color="white" py={3} px={4}>
+      <Box as="nav" bg="brand.600" color="white" py={3} px={4}>
         <Container maxW="container.lg">
           <Flex justify="space-between" align="center">
             <Link to="/">

@@ -33,7 +33,7 @@ export default function DatasetDetail() {
     <Box>
       <HStack gap={2} mb={4}>
         <Link to="/datasets">
-          <Text color="blue.500">Datasets</Text>
+          <Text color="brand.500">Datasets</Text>
         </Link>
         <Text color="fg.muted">/</Text>
         <Text>{id?.slice(0, 8)}...</Text>

@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
+  Badge,
   Box,
   Button,
   Code,
   Flex,
   Heading,
   HStack,
+  Input,
   Table,
   Text,
 } from "@chakra-ui/react";
@@ -19,6 +21,8 @@ export default function Datasets() {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [version, setVersion] = useState(0);
+  const [name, setName] = useState("");
+  const [tagsInput, setTagsInput] = useState("");
 
   const reload = useCallback(() => setVersion((v) => v + 1), []);
 
@@ -40,7 +44,13 @@ export default function Datasets() {
   async function handleCreate() {
     try {
       setError(null);
-      await api.createDataset({});
+      const tags = tagsInput
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      await api.createDataset({ name, tags });
+      setName("");
+      setTagsInput("");
       reload();
     } catch (e) {
       setError(String(e));
@@ -60,9 +70,21 @@ export default function Datasets() {
     <Box>
       <Flex justify="space-between" align="center">
         <Heading size="2xl">Datasets</Heading>
-        <Button colorPalette="blue" onClick={handleCreate}>
-          Create Dataset
-        </Button>
+        <HStack>
+          <Input
+            placeholder="Dataset name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <Input
+            placeholder="Tags (comma-separated)"
+            value={tagsInput}
+            onChange={(e) => setTagsInput(e.target.value)}
+          />
+          <Button colorPalette="brand" onClick={handleCreate} disabled={!name}>
+            Create Dataset
+          </Button>
+        </HStack>
       </Flex>
       {error && (
         <Alert.Root status="error" mt={4}>
@@ -77,6 +99,8 @@ export default function Datasets() {
         <Table.Root mt={6} variant="outline">
           <Table.Header>
             <Table.Row>
+              <Table.ColumnHeader>Name</Table.ColumnHeader>
+              <Table.ColumnHeader>Tags</Table.ColumnHeader>
               <Table.ColumnHeader>ID</Table.ColumnHeader>
               <Table.ColumnHeader textAlign="end">Actions</Table.ColumnHeader>
             </Table.Row>
@@ -86,8 +110,20 @@ export default function Datasets() {
               <Table.Row key={dataset.id}>
                 <Table.Cell>
                   <Link to={`/datasets/${dataset.id}`}>
-                    <Code>{dataset.id}</Code>
+                    {dataset.name}
                   </Link>
+                </Table.Cell>
+                <Table.Cell>
+                  <HStack gap={1} flexWrap="wrap">
+                    {(dataset.tags ?? []).map((tag) => (
+                      <Badge key={tag} colorPalette="brand" variant="subtle">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </HStack>
+                </Table.Cell>
+                <Table.Cell>
+                  <Code>{dataset.id}</Code>
                 </Table.Cell>
                 <Table.Cell textAlign="end">
                   <HStack justify="end" gap={2}>
