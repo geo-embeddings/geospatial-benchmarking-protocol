@@ -1,7 +1,7 @@
 import { Box, Container, Flex, HStack, IconButton, Image } from "@chakra-ui/react";
 import { LuMoon, LuSun } from "react-icons/lu";
 import { Link, Outlet } from "react-router";
-import { useColorMode } from "../color-mode";
+import { useColorMode } from "../use-color-mode";
 
 export default function Layout() {
   const { colorMode, toggleColorMode } = useColorMode();

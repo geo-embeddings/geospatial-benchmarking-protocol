@@ -1,17 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { ColorModeContext } from "./color-mode-context";
 
 type ColorMode = "light" | "dark";
-
-interface ColorModeContextValue {
-  colorMode: ColorMode;
-  toggleColorMode: () => void;
-}
-
-const ColorModeContext = createContext<ColorModeContextValue>({
-  colorMode: "light",
-  toggleColorMode: () => {},
-});
 
 function getSystemPreference(): ColorMode {
   return window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -42,8 +33,4 @@ export function ColorModeProvider({ children }: { children: ReactNode }) {
       {children}
     </ColorModeContext.Provider>
   );
-}
-
-export function useColorMode() {
-  return useContext(ColorModeContext);
 }
