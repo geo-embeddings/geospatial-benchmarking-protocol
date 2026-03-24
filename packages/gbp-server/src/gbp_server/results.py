@@ -3,6 +3,8 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, HTTPException
 from gbp import Result
 
+from gbp_server import datasets
+
 router = APIRouter(prefix="/api/results", tags=["results"])
 
 _results: dict[UUID, Result] = {}
@@ -10,6 +12,8 @@ _results: dict[UUID, Result] = {}
 
 @router.post("/", status_code=201)
 async def create_result(result: Result) -> dict[str, UUID]:
+    if not datasets.exists(result.dataset_id):
+        raise HTTPException(status_code=422, detail="Dataset not found")
     id = uuid4()
     _results[id] = result
     return {"id": id}
@@ -31,6 +35,8 @@ async def get_result(id: UUID) -> Result:
 async def update_result(id: UUID, result: Result) -> Result:
     if id not in _results:
         raise HTTPException(status_code=404, detail="Result not found")
+    if not datasets.exists(result.dataset_id):
+        raise HTTPException(status_code=422, detail="Dataset not found")
     _results[id] = result
     return result
 
