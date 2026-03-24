@@ -13,6 +13,7 @@ router = APIRouter(prefix="/api/pipelines", tags=["pipelines"])
 def create_pipeline(
     pipeline: Pipeline, session: Session = Depends(db.get_session)
 ) -> dict[str, UUID]:
+    pipeline = Pipeline.model_validate(pipeline)
     if not session.get(Encoder, pipeline.encoder_id):
         raise HTTPException(status_code=422, detail="Encoder not found")
     if not session.get(Decoder, pipeline.decoder_id):
@@ -43,6 +44,7 @@ def update_pipeline(
     existing = session.get(Pipeline, id)
     if not existing:
         raise HTTPException(status_code=404, detail="Pipeline not found")
+    pipeline = Pipeline.model_validate(pipeline)
     if not session.get(Encoder, pipeline.encoder_id):
         raise HTTPException(status_code=422, detail="Encoder not found")
     if not session.get(Decoder, pipeline.decoder_id):

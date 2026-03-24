@@ -1,5 +1,9 @@
 # geospatial-benchmarking-protocol
 
+<p align="center">
+  <img src="frontend/public/gbp-logo.svg" alt="GBP logo" width="128" height="128">
+</p>
+
 (WIP) Backend and frontend for geospatial embeddings benchmarks
 
 ## Development

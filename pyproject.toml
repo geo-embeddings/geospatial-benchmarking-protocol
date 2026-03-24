@@ -3,6 +3,8 @@ members = ["packages/*"]
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28",
+    "pytest>=8",
     "ruff>=0.15.7",
     "ty>=0.0.24",
 ]

@@ -13,6 +13,7 @@ router = APIRouter(prefix="/api/results", tags=["results"])
 def create_result(
     result: Result, session: Session = Depends(db.get_session)
 ) -> dict[str, UUID]:
+    result = Result.model_validate(result)
     if not session.get(Dataset, result.dataset_id):
         raise HTTPException(status_code=422, detail="Dataset not found")
     if not session.get(PretrainedModel, result.pretrained_model_id):
@@ -56,6 +57,7 @@ def update_result(
     existing = session.get(Result, id)
     if not existing:
         raise HTTPException(status_code=404, detail="Result not found")
+    result = Result.model_validate(result)
     if not session.get(Dataset, result.dataset_id):
         raise HTTPException(status_code=422, detail="Dataset not found")
     if not session.get(PretrainedModel, result.pretrained_model_id):
