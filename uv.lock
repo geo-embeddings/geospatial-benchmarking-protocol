@@ -2,6 +2,18 @@ version = 1
 revision = 3
 requires-python = ">=3.13"
 
+[manifest]
+members = [
+    "gbp",
+    "gbp-server",
+]
+
+[manifest.dependency-groups]
+dev = [
+    { name = "ruff", specifier = ">=0.15.7" },
+    { name = "ty", specifier = ">=0.0.24" },
+]
+
 [[package]]
 name = "annotated-doc"
 version = "0.0.4"
@@ -72,28 +84,23 @@ wheels = [
 [[package]]
 name = "gbp"
 version = "0.1.0"
-source = { editable = "." }
+source = { editable = "packages/gbp" }
+
+[[package]]
+name = "gbp-server"
+version = "0.1.0"
+source = { editable = "packages/gbp-server" }
 dependencies = [
     { name = "fastapi" },
+    { name = "gbp" },
     { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "ruff" },
-    { name = "ty" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.135.2" },
+    { name = "gbp", editable = "packages/gbp" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.42.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ruff", specifier = ">=0.15.7" },
-    { name = "ty", specifier = ">=0.0.24" },
 ]
 
 [[package]]
