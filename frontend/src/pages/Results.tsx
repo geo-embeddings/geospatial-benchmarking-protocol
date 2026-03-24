@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+  Alert,
+  Box,
   Button,
-  Container,
+  Code,
+  Flex,
   Heading,
+  HStack,
   Input,
-  Stack,
   Table,
   Text,
 } from "@chakra-ui/react";
@@ -14,7 +17,7 @@ type Result = components["schemas"]["Result"];
 import * as api from "../api/results";
 
 export default function Results() {
-  const [results, setResults] = useState<Record<string, Result>>({});
+  const [results, setResults] = useState<Result[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [datasetId, setDatasetId] = useState("");
   const [version, setVersion] = useState(0);
@@ -60,62 +63,73 @@ export default function Results() {
     }
   }
 
-  const entries = Object.entries(results);
-
   return (
-    <Container maxW="container.lg" py={10}>
-      <Link to="/">← Home</Link>
-      <Heading size="2xl" mt={4}>
-        Results
-      </Heading>
+    <Box>
+      <Heading size="2xl">Results</Heading>
       {error && (
-        <Text color="red.500" mt={2}>
-          {error}
-        </Text>
+        <Alert.Root status="error" mt={4}>
+          <Alert.Title>{error}</Alert.Title>
+        </Alert.Root>
       )}
-      <Stack direction="row" mt={4} gap={2}>
+      <Flex mt={6} gap={2}>
         <Input
           placeholder="Dataset ID"
           value={datasetId}
           onChange={(e) => setDatasetId(e.target.value)}
+          flex={1}
         />
-        <Button onClick={handleCreate}>Create Result</Button>
-      </Stack>
-      {entries.length === 0 ? (
-        <Text mt={4}>No results yet.</Text>
+        <Button colorPalette="blue" onClick={handleCreate}>
+          Create Result
+        </Button>
+      </Flex>
+      {results.length === 0 ? (
+        <Text mt={6} color="fg.muted">
+          No results yet. Create one to get started.
+        </Text>
       ) : (
-        <Table.Root mt={4}>
+        <Table.Root mt={6} variant="outline">
           <Table.Header>
             <Table.Row>
               <Table.ColumnHeader>ID</Table.ColumnHeader>
-              <Table.ColumnHeader>Dataset ID</Table.ColumnHeader>
-              <Table.ColumnHeader>Actions</Table.ColumnHeader>
+              <Table.ColumnHeader>Dataset</Table.ColumnHeader>
+              <Table.ColumnHeader textAlign="end">Actions</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {entries.map(([id, result]) => (
-              <Table.Row key={id}>
+            {results.map((result) => (
+              <Table.Row key={result.id}>
                 <Table.Cell>
-                  <code>{id}</code>
-                </Table.Cell>
-                <Table.Cell>
-                  <Link to={`/datasets/${result.dataset_id}`}>
-                    <code>{result.dataset_id}</code>
+                  <Link to={`/results/${result.id}`}>
+                    <Code>{result.id}</Code>
                   </Link>
                 </Table.Cell>
                 <Table.Cell>
-                  <Stack direction="row" gap={2}>
-                    <Link to={`/results/${id}`}>View</Link>
-                    <Button size="xs" onClick={() => handleDelete(id)}>
+                  <Link to={`/datasets/${result.dataset_id}`}>
+                    <Code color="blue.500">{result.dataset_id}</Code>
+                  </Link>
+                </Table.Cell>
+                <Table.Cell textAlign="end">
+                  <HStack justify="end" gap={2}>
+                    <Link to={`/results/${result.id}`}>
+                      <Button size="xs" variant="outline">
+                        View
+                      </Button>
+                    </Link>
+                    <Button
+                      size="xs"
+                      colorPalette="red"
+                      variant="outline"
+                      onClick={() => handleDelete(result.id!)}
+                    >
                       Delete
                     </Button>
-                  </Stack>
+                  </HStack>
                 </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
         </Table.Root>
       )}
-    </Container>
+    </Box>
   );
 }

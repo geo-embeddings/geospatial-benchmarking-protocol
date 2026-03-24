@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+  Alert,
+  Box,
   Button,
-  Container,
+  Code,
+  Flex,
   Heading,
-  Stack,
+  HStack,
   Table,
   Text,
 } from "@chakra-ui/react";
@@ -13,7 +16,7 @@ type Dataset = components["schemas"]["Dataset"];
 import * as api from "../api/datasets";
 
 export default function Datasets() {
-  const [datasets, setDatasets] = useState<Record<string, Dataset>>({});
+  const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [version, setVersion] = useState(0);
 
@@ -36,6 +39,7 @@ export default function Datasets() {
 
   async function handleCreate() {
     try {
+      setError(null);
       await api.createDataset({});
       reload();
     } catch (e) {
@@ -52,51 +56,61 @@ export default function Datasets() {
     }
   }
 
-  const entries = Object.entries(datasets);
-
   return (
-    <Container maxW="container.lg" py={10}>
-      <Link to="/">← Home</Link>
-      <Heading size="2xl" mt={4}>
-        Datasets
-      </Heading>
+    <Box>
+      <Flex justify="space-between" align="center">
+        <Heading size="2xl">Datasets</Heading>
+        <Button colorPalette="blue" onClick={handleCreate}>
+          Create Dataset
+        </Button>
+      </Flex>
       {error && (
-        <Text color="red.500" mt={2}>
-          {error}
-        </Text>
+        <Alert.Root status="error" mt={4}>
+          <Alert.Title>{error}</Alert.Title>
+        </Alert.Root>
       )}
-      <Button mt={4} onClick={handleCreate}>
-        Create Dataset
-      </Button>
-      {entries.length === 0 ? (
-        <Text mt={4}>No datasets yet.</Text>
+      {datasets.length === 0 ? (
+        <Text mt={6} color="fg.muted">
+          No datasets yet. Create one to get started.
+        </Text>
       ) : (
-        <Table.Root mt={4}>
+        <Table.Root mt={6} variant="outline">
           <Table.Header>
             <Table.Row>
               <Table.ColumnHeader>ID</Table.ColumnHeader>
-              <Table.ColumnHeader>Actions</Table.ColumnHeader>
+              <Table.ColumnHeader textAlign="end">Actions</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {entries.map(([id]) => (
-              <Table.Row key={id}>
+            {datasets.map((dataset) => (
+              <Table.Row key={dataset.id}>
                 <Table.Cell>
-                  <code>{id}</code>
+                  <Link to={`/datasets/${dataset.id}`}>
+                    <Code>{dataset.id}</Code>
+                  </Link>
                 </Table.Cell>
-                <Table.Cell>
-                  <Stack direction="row" gap={2}>
-                    <Link to={`/datasets/${id}`}>View</Link>
-                    <Button size="xs" onClick={() => handleDelete(id)}>
+                <Table.Cell textAlign="end">
+                  <HStack justify="end" gap={2}>
+                    <Link to={`/datasets/${dataset.id}`}>
+                      <Button size="xs" variant="outline">
+                        View
+                      </Button>
+                    </Link>
+                    <Button
+                      size="xs"
+                      colorPalette="red"
+                      variant="outline"
+                      onClick={() => handleDelete(dataset.id!)}
+                    >
                       Delete
                     </Button>
-                  </Stack>
+                  </HStack>
                 </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
         </Table.Root>
       )}
-    </Container>
+    </Box>
   );
 }

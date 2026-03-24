@@ -103,7 +103,13 @@ export interface components {
          * Dataset
          * @description A benchmarking dataset.
          */
-        Dataset: Record<string, never>;
+        Dataset: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id?: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -114,6 +120,11 @@ export interface components {
          * @description A benchmarking result.
          */
         Result: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id?: string;
             /**
              * Dataset Id
              * Format: uuid
@@ -157,9 +168,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: components["schemas"]["Dataset"];
-                    };
+                    "application/json": components["schemas"]["Dataset"][];
                 };
             };
         };
@@ -309,9 +318,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: components["schemas"]["Result"];
-                    };
+                    "application/json": components["schemas"]["Result"][];
                 };
             };
         };

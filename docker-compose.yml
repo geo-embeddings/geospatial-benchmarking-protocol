@@ -7,8 +7,10 @@ services:
       - "8000:8000"
     volumes:
       - ./packages:/app/packages
+      - db-data:/app/data
     environment:
       - PYTHONUNBUFFERED=1
+      - DATABASE_URL=sqlite:///data/gbp.db
 
   frontend:
     build:
@@ -20,3 +22,6 @@ services:
       - ./frontend/src:/app/src
     environment:
       - VITE_API_URL=http://backend:8000
+
+volumes:
+  db-data:

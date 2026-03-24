@@ -2,7 +2,7 @@ import type { components } from "./types";
 
 type Result = components["schemas"]["Result"];
 
-export async function listResults(): Promise<Record<string, Result>> {
+export async function listResults(): Promise<Result[]> {
   const res = await fetch("/api/results/");
   if (!res.ok) throw new Error("Failed to fetch results");
   return res.json();
@@ -14,7 +14,9 @@ export async function getResult(id: string): Promise<Result> {
   return res.json();
 }
 
-export async function createResult(result: Result): Promise<{ id: string }> {
+export async function createResult(
+  result: Omit<Result, "id">,
+): Promise<{ id: string }> {
   const res = await fetch("/api/results/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

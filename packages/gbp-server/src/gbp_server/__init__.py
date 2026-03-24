@@ -1,8 +1,18 @@
+from contextlib import asynccontextmanager
+from collections.abc import AsyncGenerator
+
 from fastapi import FastAPI
 
-from gbp_server import datasets, results
+from gbp_server import datasets, db, results
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+    db.create_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 app.include_router(datasets.router)
 app.include_router(results.router)
 

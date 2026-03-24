@@ -2,7 +2,7 @@ import type { components } from "./types";
 
 type Dataset = components["schemas"]["Dataset"];
 
-export async function listDatasets(): Promise<Record<string, Dataset>> {
+export async function listDatasets(): Promise<Dataset[]> {
   const res = await fetch("/api/datasets/");
   if (!res.ok) throw new Error("Failed to fetch datasets");
   return res.json();
@@ -14,7 +14,9 @@ export async function getDataset(id: string): Promise<Dataset> {
   return res.json();
 }
 
-export async function createDataset(dataset: Dataset): Promise<{ id: string }> {
+export async function createDataset(
+  dataset: Omit<Dataset, "id">,
+): Promise<{ id: string }> {
   const res = await fetch("/api/datasets/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

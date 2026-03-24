@@ -1,46 +1,55 @@
-from uuid import UUID, uuid4
+from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from gbp import Dataset
+from sqlmodel import Session, select
+
+from gbp_server import db
 
 router = APIRouter(prefix="/api/datasets", tags=["datasets"])
 
-_datasets: dict[UUID, Dataset] = {}
-
-
-def exists(id: UUID) -> bool:
-    return id in _datasets
-
 
 @router.post("/", status_code=201)
-async def create_dataset(dataset: Dataset) -> dict[str, UUID]:
-    id = uuid4()
-    _datasets[id] = dataset
-    return {"id": id}
+def create_dataset(
+    dataset: Dataset, session: Session = Depends(db.get_session)
+) -> dict[str, UUID]:
+    session.add(dataset)
+    session.commit()
+    session.refresh(dataset)
+    return {"id": dataset.id}
 
 
 @router.get("/")
-async def list_datasets() -> dict[UUID, Dataset]:
-    return _datasets
+def list_datasets(session: Session = Depends(db.get_session)) -> list[Dataset]:
+    return list(session.exec(select(Dataset)).all())
 
 
 @router.get("/{id}")
-async def get_dataset(id: UUID) -> Dataset:
-    if id not in _datasets:
+def get_dataset(id: UUID, session: Session = Depends(db.get_session)) -> Dataset:
+    dataset = session.get(Dataset, id)
+    if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
-    return _datasets[id]
-
-
-@router.put("/{id}")
-async def update_dataset(id: UUID, dataset: Dataset) -> Dataset:
-    if id not in _datasets:
-        raise HTTPException(status_code=404, detail="Dataset not found")
-    _datasets[id] = dataset
     return dataset
 
 
-@router.delete("/{id}", status_code=204)
-async def delete_dataset(id: UUID) -> None:
-    if id not in _datasets:
+@router.put("/{id}")
+def update_dataset(
+    id: UUID, dataset: Dataset, session: Session = Depends(db.get_session)
+) -> Dataset:
+    existing = session.get(Dataset, id)
+    if not existing:
         raise HTTPException(status_code=404, detail="Dataset not found")
-    del _datasets[id]
+    existing.sqlmodel_update(dataset.model_dump(exclude={"id"}))
+    session.add(existing)
+    session.commit()
+    session.refresh(existing)
+    return existing
+
+
+@router.delete("/{id}", status_code=204)
+def delete_dataset(id: UUID, session: Session = Depends(db.get_session)) -> None:
+    dataset = session.get(Dataset, id)
+    if not dataset:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+    session.delete(dataset)
+    session.commit()

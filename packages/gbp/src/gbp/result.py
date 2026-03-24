@@ -1,9 +1,10 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 
-from pydantic import BaseModel
+from sqlmodel import Field, SQLModel
 
 
-class Result(BaseModel):
+class Result(SQLModel, table=True):
     """A benchmarking result."""
 
-    dataset_id: UUID
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    dataset_id: UUID = Field(foreign_key="dataset.id")

@@ -10,6 +10,7 @@ requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard]>=0.135.2",
     "gbp",
+    "sqlmodel>=0.0.24",
     "uvicorn[standard]>=0.42.0",
 ]
 
