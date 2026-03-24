@@ -1,4 +1,4 @@
-import { Box, Container, Flex, Heading, HStack } from "@chakra-ui/react";
+import { Box, Container, Flex, HStack, Image } from "@chakra-ui/react";
 import { Link, Outlet } from "react-router";
 
 export default function Layout() {
@@ -8,9 +8,7 @@ export default function Layout() {
         <Container maxW="container.lg">
           <Flex justify="space-between" align="center">
             <Link to="/">
-              <Heading size="md" fontWeight="bold">
-                GBP
-              </Heading>
+              <Image src="/gbp-logo.svg" alt="GBP" height="32px" />
             </Link>
             <HStack gap={6}>
               <Link to="/datasets">Datasets</Link>
