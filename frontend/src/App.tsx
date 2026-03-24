@@ -1,12 +1,20 @@
-import { Container, Heading, Text } from "@chakra-ui/react";
+import { BrowserRouter, Route, Routes } from "react-router";
+import Home from "./pages/Home";
+import Datasets from "./pages/Datasets";
+import DatasetDetail from "./pages/DatasetDetail";
+import Results from "./pages/Results";
+import ResultDetail from "./pages/ResultDetail";
 
-function App() {
+export default function App() {
   return (
-    <Container maxW="container.lg" py={10}>
-      <Heading size="2xl">Geospatial Benchmarking Protocol</Heading>
-      <Text mt={4}>Welcome to the application.</Text>
-    </Container>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/datasets" element={<Datasets />} />
+        <Route path="/datasets/:id" element={<DatasetDetail />} />
+        <Route path="/results" element={<Results />} />
+        <Route path="/results/:id" element={<ResultDetail />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
