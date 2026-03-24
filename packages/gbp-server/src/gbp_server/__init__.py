@@ -4,7 +4,17 @@ from collections.abc import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from gbp_server import datasets, db, decoders, encoders, pipelines, pretrained_models, results, runners, stac
+from gbp_server import (
+    datasets,
+    db,
+    decoders,
+    encoders,
+    pipelines,
+    pretrained_models,
+    results,
+    runners,
+    stac,
+)
 
 
 @asynccontextmanager

@@ -32,9 +32,7 @@ def list_results(
 ) -> list[Result]:
     if tag:
         dataset_ids = [
-            d.id
-            for d in session.exec(select(Dataset)).all()
-            if tag in d.tags
+            d.id for d in session.exec(select(Dataset)).all() if tag in d.tags
         ]
         return list(
             session.exec(select(Result).where(Result.dataset_id.in_(dataset_ids))).all()

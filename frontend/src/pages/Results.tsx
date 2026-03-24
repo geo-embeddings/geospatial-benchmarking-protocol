@@ -24,6 +24,8 @@ export default function Results() {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [datasetId, setDatasetId] = useState("");
+  const [pretrainedModelId, setPretrainedModelId] = useState("");
+  const [runnerId, setRunnerId] = useState("");
   const [filterTag, setFilterTag] = useState("");
   const [version, setVersion] = useState(0);
 
@@ -68,8 +70,14 @@ export default function Results() {
     }
     try {
       setError(null);
-      await api.createResult({ dataset_id: datasetId.trim() });
+      await api.createResult({
+        dataset_id: datasetId.trim(),
+        pretrained_model_id: pretrainedModelId.trim(),
+        runner_id: runnerId.trim(),
+      });
       setDatasetId("");
+      setPretrainedModelId("");
+      setRunnerId("");
       reload();
     } catch (e) {
       setError(String(e));
@@ -118,6 +126,18 @@ export default function Results() {
           placeholder="Dataset ID"
           value={datasetId}
           onChange={(e) => setDatasetId(e.target.value)}
+          flex={1}
+        />
+        <Input
+          placeholder="Pretrained Model ID"
+          value={pretrainedModelId}
+          onChange={(e) => setPretrainedModelId(e.target.value)}
+          flex={1}
+        />
+        <Input
+          placeholder="Runner ID"
+          value={runnerId}
+          onChange={(e) => setRunnerId(e.target.value)}
           flex={1}
         />
         <Button colorPalette="brand" onClick={handleCreate}>

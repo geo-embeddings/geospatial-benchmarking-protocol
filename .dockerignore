@@ -1,0 +1,10 @@
+.venv
+.git
+.ruff_cache
+.pytest_cache
+__pycache__
+*.pyc
+*.db
+**/cdk.out
+frontend/node_modules
+frontend/.yarn

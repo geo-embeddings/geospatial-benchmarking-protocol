@@ -6,4 +6,12 @@ from gbp.pretrained_model import PretrainedModel
 from gbp.result import Result
 from gbp.runner import Runner
 
-__all__ = ["Dataset", "Decoder", "Encoder", "Pipeline", "PretrainedModel", "Result", "Runner"]
+__all__ = [
+    "Dataset",
+    "Decoder",
+    "Encoder",
+    "Pipeline",
+    "PretrainedModel",
+    "Result",
+    "Runner",
+]
