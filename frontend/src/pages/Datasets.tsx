@@ -4,11 +4,14 @@ import {
   Badge,
   Box,
   Button,
-  Code,
+  Dialog,
+  Fieldset,
   Flex,
   Heading,
   HStack,
   Input,
+  Portal,
+  Stack,
   Table,
   Text,
 } from "@chakra-ui/react";
@@ -17,12 +20,17 @@ import type { components } from "../api/types";
 type Dataset = components["schemas"]["Dataset"];
 import * as api from "../api/datasets";
 
+const INITIAL_FORM = {
+  title: "",
+  tags: "",
+};
+
 export default function Datasets() {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [version, setVersion] = useState(0);
-  const [name, setName] = useState("");
-  const [tagsInput, setTagsInput] = useState("");
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState(INITIAL_FORM);
 
   const reload = useCallback(() => setVersion((v) => v + 1), []);
 
@@ -41,16 +49,24 @@ export default function Datasets() {
     };
   }, [version]);
 
+  function updateField(field: string, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
   async function handleCreate() {
     try {
       setError(null);
-      const tags = tagsInput
+      const tags = form.tags
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean);
-      await api.createDataset({ name, tags });
-      setName("");
-      setTagsInput("");
+
+      await api.createDataset({ title: form.title, tags } as Omit<
+        Dataset,
+        "id"
+      >);
+      setForm(INITIAL_FORM);
+      setOpen(false);
       reload();
     } catch (e) {
       setError(String(e));
@@ -66,25 +82,82 @@ export default function Datasets() {
     }
   }
 
+  const canSubmit = form.title.trim() !== "";
+
   return (
     <Box>
       <Flex justify="space-between" align="center">
         <Heading size="2xl">Datasets</Heading>
-        <HStack>
-          <Input
-            placeholder="Dataset name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <Input
-            placeholder="Tags (comma-separated)"
-            value={tagsInput}
-            onChange={(e) => setTagsInput(e.target.value)}
-          />
-          <Button colorPalette="brand" onClick={handleCreate} disabled={!name}>
-            Create Dataset
-          </Button>
-        </HStack>
+        <Dialog.Root
+          open={open}
+          onOpenChange={(e) => setOpen(e.open)}
+          size="lg"
+        >
+          <Dialog.Trigger asChild>
+            <Button colorPalette="brand">Create Dataset</Button>
+          </Dialog.Trigger>
+          <Portal>
+            <Dialog.Backdrop />
+            <Dialog.Positioner>
+              <Dialog.Content>
+                <Dialog.Header>
+                  <Dialog.Title>Create Dataset</Dialog.Title>
+                  <Dialog.Description>
+                    Create a new STAC Item dataset
+                  </Dialog.Description>
+                </Dialog.Header>
+                <Dialog.Body>
+                  <Stack gap={4}>
+                    <Fieldset.Root>
+                      <Fieldset.Legend>Required</Fieldset.Legend>
+                      <Box>
+                        <Text fontWeight="medium" mb={1}>
+                          Title
+                        </Text>
+                        <Input
+                          placeholder="Dataset title"
+                          value={form.title}
+                          onChange={(e) =>
+                            updateField("title", e.target.value)
+                          }
+                        />
+                      </Box>
+                    </Fieldset.Root>
+
+                    <Fieldset.Root>
+                      <Fieldset.Legend>Metadata</Fieldset.Legend>
+                      <Box>
+                        <Text fontWeight="medium" mb={1}>
+                          Tags
+                        </Text>
+                        <Input
+                          placeholder="Comma-separated tags"
+                          value={form.tags}
+                          onChange={(e) =>
+                            updateField("tags", e.target.value)
+                          }
+                        />
+                      </Box>
+                    </Fieldset.Root>
+                  </Stack>
+                </Dialog.Body>
+                <Dialog.Footer>
+                  <Dialog.ActionTrigger asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </Dialog.ActionTrigger>
+                  <Button
+                    colorPalette="brand"
+                    onClick={handleCreate}
+                    disabled={!canSubmit}
+                  >
+                    Create
+                  </Button>
+                </Dialog.Footer>
+                <Dialog.CloseTrigger />
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Portal>
+        </Dialog.Root>
       </Flex>
       {error && (
         <Alert.Root status="error" mt={4}>
@@ -99,9 +172,8 @@ export default function Datasets() {
         <Table.Root mt={6} variant="outline">
           <Table.Header>
             <Table.Row>
-              <Table.ColumnHeader>Name</Table.ColumnHeader>
+              <Table.ColumnHeader>Title</Table.ColumnHeader>
               <Table.ColumnHeader>Tags</Table.ColumnHeader>
-              <Table.ColumnHeader>ID</Table.ColumnHeader>
               <Table.ColumnHeader textAlign="end">Actions</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
@@ -109,9 +181,7 @@ export default function Datasets() {
             {datasets.map((dataset) => (
               <Table.Row key={dataset.id}>
                 <Table.Cell>
-                  <Link to={`/datasets/${dataset.id}`}>
-                    {dataset.name}
-                  </Link>
+                  <Link to={`/datasets/${dataset.id}`}>{dataset.title}</Link>
                 </Table.Cell>
                 <Table.Cell>
                   <HStack gap={1} flexWrap="wrap">
@@ -121,9 +191,6 @@ export default function Datasets() {
                       </Badge>
                     ))}
                   </HStack>
-                </Table.Cell>
-                <Table.Cell>
-                  <Code>{dataset.id}</Code>
                 </Table.Cell>
                 <Table.Cell textAlign="end">
                   <HStack justify="end" gap={2}>

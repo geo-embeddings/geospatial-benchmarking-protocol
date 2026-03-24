@@ -10,7 +10,8 @@ PRETRAINED_MODEL_DATA = {
 
 def _create_dependencies(client, dataset_name="test", tags=None):
     dataset_id = client.post(
-        "/api/datasets/", json={"name": dataset_name, "tags": tags or []}
+        "/api/datasets/",
+        json={"title": dataset_name, "tags": tags or []},
     ).json()["id"]
     model_id = client.post(
         "/api/pretrained-models/", json=PRETRAINED_MODEL_DATA

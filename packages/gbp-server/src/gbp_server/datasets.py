@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -13,6 +14,12 @@ router = APIRouter(prefix="/api/datasets", tags=["datasets"])
 def create_dataset(
     dataset: Dataset, session: Session = Depends(db.get_session)
 ) -> dict[str, UUID]:
+    dataset = Dataset.model_validate(dataset)
+    dataset.stac_version = "1.1.0"
+    if not dataset.stac_id:
+        dataset.stac_id = str(dataset.id)
+    if not dataset.datetime:
+        dataset.datetime = datetime.now(timezone.utc)
     session.add(dataset)
     session.commit()
     session.refresh(dataset)
@@ -39,6 +46,7 @@ def update_dataset(
     existing = session.get(Dataset, id)
     if not existing:
         raise HTTPException(status_code=404, detail="Dataset not found")
+    dataset = Dataset.model_validate(dataset)
     existing.sqlmodel_update(dataset.model_dump(exclude={"id"}))
     session.add(existing)
     session.commit()
