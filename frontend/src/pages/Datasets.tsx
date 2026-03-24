@@ -117,9 +117,7 @@ export default function Datasets() {
                         <Input
                           placeholder="Dataset title"
                           value={form.title}
-                          onChange={(e) =>
-                            updateField("title", e.target.value)
-                          }
+                          onChange={(e) => updateField("title", e.target.value)}
                         />
                       </Box>
                     </Fieldset.Root>
@@ -133,9 +131,7 @@ export default function Datasets() {
                         <Input
                           placeholder="Comma-separated tags"
                           value={form.tags}
-                          onChange={(e) =>
-                            updateField("tags", e.target.value)
-                          }
+                          onChange={(e) => updateField("tags", e.target.value)}
                         />
                       </Box>
                     </Fieldset.Root>

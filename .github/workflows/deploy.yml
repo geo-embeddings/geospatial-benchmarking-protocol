@@ -5,6 +5,7 @@ on: workflow_dispatch
 permissions:
   id-token: write
   contents: read
+  pages: write
 
 jobs:
   deploy:
@@ -28,3 +29,27 @@ jobs:
           aws-region: us-west-2
       - name: Deploy
         run: cdk deploy --all --require-approval never
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Build
+        run: yarn build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+      - uses: actions/deploy-pages@v4
+        id: deploy
