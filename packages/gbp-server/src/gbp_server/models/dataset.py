@@ -1,21 +1,26 @@
 import datetime as dt
-from uuid import UUID, uuid4
+import uuid
 
-from sqlmodel import Column, Field, JSON, SQLModel
+from sqlalchemy import JSON
+from sqlalchemy.orm import Mapped, mapped_column
+
+from gbp_server.models.base import Base
 
 
-class Dataset(SQLModel, table=True):
+class Dataset(Base):
     """A benchmarking dataset, modeled as a STAC Item."""
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    title: str
-    tags: list[str] = Field(default_factory=list, sa_column=Column(JSON))
-    stac_version: str = Field(default="1.1.0")
-    stac_id: str | None = None
-    geometry: dict | None = Field(default=None, sa_column=Column(JSON))
-    bbox: list[float] | None = Field(default=None, sa_column=Column(JSON))
-    datetime: dt.datetime | None = None
-    start_datetime: dt.datetime | None = None
-    end_datetime: dt.datetime | None = None
-    links: list[dict] = Field(default_factory=list, sa_column=Column(JSON))
-    assets: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    __tablename__ = "dataset"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    title: Mapped[str]
+    tags: Mapped[list] = mapped_column(JSON, default=list)
+    stac_version: Mapped[str] = mapped_column(default="1.1.0")
+    stac_id: Mapped[str | None] = mapped_column(default=None)
+    geometry: Mapped[dict | None] = mapped_column(JSON, default=None)
+    bbox: Mapped[list | None] = mapped_column(JSON, default=None)
+    datetime: Mapped[dt.datetime | None] = mapped_column(default=None)
+    start_datetime: Mapped[dt.datetime | None] = mapped_column(default=None)
+    end_datetime: Mapped[dt.datetime | None] = mapped_column(default=None)
+    links: Mapped[list] = mapped_column(JSON, default=list)
+    assets: Mapped[dict] = mapped_column(JSON, default=dict)

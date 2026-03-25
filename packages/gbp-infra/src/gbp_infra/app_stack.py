@@ -4,13 +4,13 @@ from aws_cdk import Stack
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_ecs as ecs
 from aws_cdk import aws_ecs_patterns as ecs_patterns
-from aws_cdk import aws_efs as efs
 from aws_cdk import aws_elasticloadbalancingv2 as elbv2
+from aws_cdk import aws_rds as rds
 from constructs import Construct
 
 
 class AppStack(Stack):
-    """Fargate service running the GBP backend API with SQLite on EFS."""
+    """Fargate service running the GBP backend API with PostgreSQL on RDS."""
 
     def __init__(
         self,
@@ -18,8 +18,7 @@ class AppStack(Stack):
         id: str,
         *,
         vpc: ec2.IVpc,
-        file_system: efs.IFileSystem,
-        access_point: efs.IAccessPoint,
+        database: rds.DatabaseInstance,
         app_security_group: ec2.ISecurityGroup,
         alb_security_group: ec2.ISecurityGroup,
         repo_root: Path,
@@ -29,8 +28,6 @@ class AppStack(Stack):
 
         cluster = ecs.Cluster(self, "Cluster", vpc=vpc)
 
-        volume_name = "gbp-data"
-
         task_definition = ecs.FargateTaskDefinition(
             self,
             "TaskDef",
@@ -38,19 +35,10 @@ class AppStack(Stack):
             memory_limit_mib=512,
         )
 
-        task_definition.add_volume(
-            name=volume_name,
-            efs_volume_configuration=ecs.EfsVolumeConfiguration(
-                file_system_id=file_system.file_system_id,
-                transit_encryption="ENABLED",
-                authorization_config=ecs.AuthorizationConfig(
-                    access_point_id=access_point.access_point_id,
-                    iam="ENABLED",
-                ),
-            ),
-        )
+        db_secret = database.secret
+        assert db_secret is not None
 
-        container = task_definition.add_container(
+        task_definition.add_container(
             "App",
             image=ecs.ContainerImage.from_asset(
                 str(repo_root),
@@ -59,17 +47,19 @@ class AppStack(Stack):
             logging=ecs.LogDrivers.aws_logs(stream_prefix="gbp"),
             environment={
                 "PYTHONUNBUFFERED": "1",
-                "DATABASE_URL": "sqlite:///data/gbp.db",
+            },
+            secrets={
+                "DB_HOST": ecs.Secret.from_secrets_manager(db_secret, field="host"),
+                "DB_PORT": ecs.Secret.from_secrets_manager(db_secret, field="port"),
+                "DB_USERNAME": ecs.Secret.from_secrets_manager(
+                    db_secret, field="username"
+                ),
+                "DB_PASSWORD": ecs.Secret.from_secrets_manager(
+                    db_secret, field="password"
+                ),
+                "DB_NAME": ecs.Secret.from_secrets_manager(db_secret, field="dbname"),
             },
             port_mappings=[ecs.PortMapping(container_port=8000)],
-        )
-
-        container.add_mount_points(
-            ecs.MountPoint(
-                container_path="/app/data",
-                source_volume=volume_name,
-                read_only=False,
-            )
         )
 
         alb = elbv2.ApplicationLoadBalancer(
@@ -90,7 +80,5 @@ class AppStack(Stack):
             security_groups=[app_security_group],
             open_listener=False,
         )
-
-        file_system.grant_read_write(task_definition.task_role)
 
         service.target_group.configure_health_check(path="/api/health")

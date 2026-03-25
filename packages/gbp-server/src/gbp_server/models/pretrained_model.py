@@ -1,17 +1,19 @@
-from uuid import UUID, uuid4
+import uuid
 
-from sqlmodel import Field, SQLModel
+from sqlalchemy.orm import Mapped, mapped_column
+
+from gbp_server.models.base import Base
 
 
-class PretrainedModel(SQLModel, table=True):
+class PretrainedModel(Base):
     """A pretrained model specification."""
 
     __tablename__ = "pretrained_model"
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    pretraining_bands: str
-    preferred_satellite_source: str
-    input_shape: str
-    output_shape: str
-    pretrained_weight_source: str
-    pretraining_data_provenance: str
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    pretraining_bands: Mapped[str]
+    preferred_satellite_source: Mapped[str]
+    input_shape: Mapped[str]
+    output_shape: Mapped[str]
+    pretrained_weight_source: Mapped[str]
+    pretraining_data_provenance: Mapped[str]

@@ -1,9 +1,13 @@
-from uuid import UUID, uuid4
+import uuid
 
-from sqlmodel import Field, SQLModel
+from sqlalchemy.orm import Mapped, mapped_column
+
+from gbp_server.models.base import Base
 
 
-class Runner(SQLModel, table=True):
+class Runner(Base):
     """A benchmarking runner."""
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    __tablename__ = "runner"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)

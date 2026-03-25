@@ -1,4 +1,15 @@
 services:
+  postgres:
+    image: postgres:17
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=gbp
+      - POSTGRES_PASSWORD=gbp
+      - POSTGRES_DB=gbp
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
   backend:
     build:
       context: .
@@ -7,10 +18,11 @@ services:
       - "8000:8000"
     volumes:
       - ./packages:/app/packages
-      - db-data:/app/data
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=sqlite:///data/gbp.db
+      - DATABASE_URL=postgresql+psycopg://gbp:gbp@postgres:5432/gbp
+    depends_on:
+      - postgres
 
   frontend:
     build:

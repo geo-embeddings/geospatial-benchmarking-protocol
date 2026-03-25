@@ -1,18 +1,21 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from gbp_server.models import PretrainedModel
-from sqlmodel import Session, select
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from gbp_server import db
+from gbp_server.models import PretrainedModel
+from gbp_server.schemas import PretrainedModelCreate, PretrainedModelRead
 
 router = APIRouter(prefix="/api/pretrained-models", tags=["pretrained-models"])
 
 
 @router.post("/", status_code=201)
 def create_pretrained_model(
-    model: PretrainedModel, session: Session = Depends(db.get_session)
+    data: PretrainedModelCreate, session: Session = Depends(db.get_session)
 ) -> dict[str, UUID]:
+    model = PretrainedModel(**data.model_dump())
     session.add(model)
     session.commit()
     session.refresh(model)
@@ -22,34 +25,38 @@ def create_pretrained_model(
 @router.get("/")
 def list_pretrained_models(
     session: Session = Depends(db.get_session),
-) -> list[PretrainedModel]:
-    return list(session.exec(select(PretrainedModel)).all())
+) -> list[PretrainedModelRead]:
+    return [
+        PretrainedModelRead.model_validate(m)
+        for m in session.execute(select(PretrainedModel)).scalars().all()
+    ]
 
 
 @router.get("/{id}")
 def get_pretrained_model(
     id: UUID, session: Session = Depends(db.get_session)
-) -> PretrainedModel:
+) -> PretrainedModelRead:
     model = session.get(PretrainedModel, id)
     if not model:
         raise HTTPException(status_code=404, detail="Pretrained model not found")
-    return model
+    return PretrainedModelRead.model_validate(model)
 
 
 @router.put("/{id}")
 def update_pretrained_model(
     id: UUID,
-    model: PretrainedModel,
+    data: PretrainedModelCreate,
     session: Session = Depends(db.get_session),
-) -> PretrainedModel:
+) -> PretrainedModelRead:
     existing = session.get(PretrainedModel, id)
     if not existing:
         raise HTTPException(status_code=404, detail="Pretrained model not found")
-    existing.sqlmodel_update(model.model_dump(exclude={"id"}))
+    for key, value in data.model_dump().items():
+        setattr(existing, key, value)
     session.add(existing)
     session.commit()
     session.refresh(existing)
-    return existing
+    return PretrainedModelRead.model_validate(existing)
 
 
 @router.delete("/{id}", status_code=204)

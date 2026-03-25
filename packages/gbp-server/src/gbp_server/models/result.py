@@ -1,12 +1,19 @@
-from uuid import UUID, uuid4
+import uuid
 
-from sqlmodel import Field, SQLModel
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
+
+from gbp_server.models.base import Base
 
 
-class Result(SQLModel, table=True):
+class Result(Base):
     """A benchmarking result."""
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    dataset_id: UUID = Field(foreign_key="dataset.id")
-    pretrained_model_id: UUID = Field(foreign_key="pretrained_model.id")
-    runner_id: UUID = Field(foreign_key="runner.id")
+    __tablename__ = "result"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    dataset_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("dataset.id"))
+    pretrained_model_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("pretrained_model.id")
+    )
+    runner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("runner.id"))

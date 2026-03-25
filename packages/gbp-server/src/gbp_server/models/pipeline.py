@@ -1,11 +1,16 @@
-from uuid import UUID, uuid4
+import uuid
 
-from sqlmodel import Field, SQLModel
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
+
+from gbp_server.models.base import Base
 
 
-class Pipeline(SQLModel, table=True):
+class Pipeline(Base):
     """A benchmarking pipeline."""
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    encoder_id: UUID = Field(foreign_key="encoder.id")
-    decoder_id: UUID = Field(foreign_key="decoder.id")
+    __tablename__ = "pipeline"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    encoder_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("encoder.id"))
+    decoder_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("decoder.id"))
