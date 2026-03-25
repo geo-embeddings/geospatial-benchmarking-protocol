@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from gbp_server.models.base import Base
+from gbp.server.models.base import Base
 
 
 class Pipeline(Base):

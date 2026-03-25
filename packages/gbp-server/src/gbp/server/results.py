@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from gbp_server import db
-from gbp_server.models import Dataset, PretrainedModel, Result, Runner
-from gbp_server.schemas import ResultCreate, ResultRead
+from gbp.server import db
+from gbp.server.models import Dataset, PretrainedModel, Result, Runner
+from gbp.server.schemas import ResultCreate, ResultRead
 
 router = APIRouter(prefix="/api/results", tags=["results"])
 

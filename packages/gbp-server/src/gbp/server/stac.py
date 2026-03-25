@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from gbp_server import db
-from gbp_server.models import Dataset
+from gbp.server import db
+from gbp.server.models import Dataset
 
 router = APIRouter(prefix="/stac", tags=["stac"])
 

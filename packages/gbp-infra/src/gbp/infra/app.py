@@ -2,11 +2,11 @@ from pathlib import Path
 
 from aws_cdk import App, Environment, Tags
 
-from gbp_infra.app_stack import AppStack
-from gbp_infra.config import Config
-from gbp_infra.database_stack import DatabaseStack
+from gbp.infra.app_stack import AppStack
+from gbp.infra.config import Config
+from gbp.infra.database_stack import DatabaseStack
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
+REPO_ROOT = Path(__file__).resolve().parents[5]
 
 config = Config()
 app = App()

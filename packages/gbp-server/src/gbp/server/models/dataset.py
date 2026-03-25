@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy import JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
-from gbp_server.models.base import Base
+from gbp.server.models.base import Base
 
 
 class Dataset(Base):

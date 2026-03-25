@@ -4,7 +4,7 @@ from collections.abc import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from gbp_server.models import Base
+from gbp.server.models import Base
 
 
 def _get_database_url() -> str:

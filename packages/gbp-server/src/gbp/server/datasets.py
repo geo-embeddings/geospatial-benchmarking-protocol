@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from gbp_server import db
-from gbp_server.models import Dataset
-from gbp_server.schemas import DatasetCreate, DatasetRead
+from gbp.server import db
+from gbp.server.models import Dataset
+from gbp.server.schemas import DatasetCreate, DatasetRead
 
 router = APIRouter(prefix="/api/datasets", tags=["datasets"])
 

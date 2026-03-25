@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer
 
-from gbp_server import app, db
-from gbp_server.models import Base
+from gbp.server import app, db
+from gbp.server.models import Base
 
 
 @pytest.fixture(scope="session")

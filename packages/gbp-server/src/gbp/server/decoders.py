@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from gbp_server import db
-from gbp_server.models import Decoder
-from gbp_server.schemas import DecoderRead
+from gbp.server import db
+from gbp.server.models import Decoder
+from gbp.server.schemas import DecoderRead
 
 router = APIRouter(prefix="/api/decoders", tags=["decoders"])
 

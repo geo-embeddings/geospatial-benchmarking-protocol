@@ -4,7 +4,7 @@ from collections.abc import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from gbp_server import (
+from gbp.server import (
     datasets,
     db,
     decoders,

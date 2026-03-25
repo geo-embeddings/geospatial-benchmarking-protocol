@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy.orm import Mapped, mapped_column
 
-from gbp_server.models.base import Base
+from gbp.server.models.base import Base
 
 
 class Decoder(Base):
