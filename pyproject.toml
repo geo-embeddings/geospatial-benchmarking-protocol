@@ -15,3 +15,4 @@ norecursedirs = ["cdk.out", "node_modules", ".venv"]
 
 [tool.ruff]
 src = ["packages/*/src"]
+namespace-packages = ["packages/*/src/gbp"]

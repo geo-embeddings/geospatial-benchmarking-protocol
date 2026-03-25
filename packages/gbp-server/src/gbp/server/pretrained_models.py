@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from gbp_server import db
-from gbp_server.models import PretrainedModel
-from gbp_server.schemas import PretrainedModelCreate, PretrainedModelRead
+from gbp.server import db
+from gbp.server.models import PretrainedModel
+from gbp.server.schemas import PretrainedModelCreate, PretrainedModelRead
 
 router = APIRouter(prefix="/api/pretrained-models", tags=["pretrained-models"])
 

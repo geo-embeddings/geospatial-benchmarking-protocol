@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from gbp_server import db
-from gbp_server.models import Decoder, Encoder, Pipeline
-from gbp_server.schemas import PipelineCreate, PipelineRead
+from gbp.server import db
+from gbp.server.models import Decoder, Encoder, Pipeline
+from gbp.server.schemas import PipelineCreate, PipelineRead
 
 router = APIRouter(prefix="/api/pipelines", tags=["pipelines"])
 
