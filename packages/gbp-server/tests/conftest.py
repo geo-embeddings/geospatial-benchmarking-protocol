@@ -1,20 +1,28 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlmodel import Session, SQLModel, StaticPool, create_engine
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
+from testcontainers.postgres import PostgresContainer
 
-import gbp_server.models  # noqa: F401 — registers all models on SQLModel.metadata
 from gbp_server import app, db
+from gbp_server.models import Base
+
+
+@pytest.fixture(scope="session")
+def postgres():
+    with PostgresContainer("postgres:17", driver="psycopg") as pg:
+        yield pg
+
+
+@pytest.fixture(scope="session")
+def engine(postgres):
+    engine = create_engine(postgres.get_connection_url())
+    Base.metadata.create_all(engine)
+    return engine
 
 
 @pytest.fixture()
-def client():
-    engine = create_engine(
-        "sqlite://",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
-    SQLModel.metadata.create_all(engine)
-
+def client(engine):
     def get_session_override():
         with Session(engine) as session:
             yield session
@@ -22,3 +30,8 @@ def client():
     app.dependency_overrides[db.get_session] = get_session_override
     yield TestClient(app)
     app.dependency_overrides.clear()
+
+    with Session(engine) as session:
+        for table in reversed(Base.metadata.sorted_tables):
+            session.execute(table.delete())
+        session.commit()

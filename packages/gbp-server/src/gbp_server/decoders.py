@@ -1,18 +1,19 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from gbp_server.models import Decoder
-from sqlmodel import Session, select
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from gbp_server import db
+from gbp_server.models import Decoder
+from gbp_server.schemas import DecoderRead
 
 router = APIRouter(prefix="/api/decoders", tags=["decoders"])
 
 
 @router.post("/", status_code=201)
-def create_decoder(
-    decoder: Decoder, session: Session = Depends(db.get_session)
-) -> dict[str, UUID]:
+def create_decoder(session: Session = Depends(db.get_session)) -> dict[str, UUID]:
+    decoder = Decoder()
     session.add(decoder)
     session.commit()
     session.refresh(decoder)
@@ -20,30 +21,19 @@ def create_decoder(
 
 
 @router.get("/")
-def list_decoders(session: Session = Depends(db.get_session)) -> list[Decoder]:
-    return list(session.exec(select(Decoder)).all())
+def list_decoders(session: Session = Depends(db.get_session)) -> list[DecoderRead]:
+    return [
+        DecoderRead.model_validate(d)
+        for d in session.execute(select(Decoder)).scalars().all()
+    ]
 
 
 @router.get("/{id}")
-def get_decoder(id: UUID, session: Session = Depends(db.get_session)) -> Decoder:
+def get_decoder(id: UUID, session: Session = Depends(db.get_session)) -> DecoderRead:
     decoder = session.get(Decoder, id)
     if not decoder:
         raise HTTPException(status_code=404, detail="Decoder not found")
-    return decoder
-
-
-@router.put("/{id}")
-def update_decoder(
-    id: UUID, decoder: Decoder, session: Session = Depends(db.get_session)
-) -> Decoder:
-    existing = session.get(Decoder, id)
-    if not existing:
-        raise HTTPException(status_code=404, detail="Decoder not found")
-    existing.sqlmodel_update(decoder.model_dump(exclude={"id"}))
-    session.add(existing)
-    session.commit()
-    session.refresh(existing)
-    return existing
+    return DecoderRead.model_validate(decoder)
 
 
 @router.delete("/{id}", status_code=204)

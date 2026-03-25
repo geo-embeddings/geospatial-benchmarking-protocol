@@ -1,11 +1,11 @@
 from aws_cdk import RemovalPolicy, Stack
 from aws_cdk import aws_ec2 as ec2
-from aws_cdk import aws_efs as efs
+from aws_cdk import aws_rds as rds
 from constructs import Construct
 
 
 class DatabaseStack(Stack):
-    """EFS file system for persistent SQLite storage."""
+    """RDS PostgreSQL database for GBP."""
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
@@ -36,20 +36,23 @@ class DatabaseStack(Stack):
             self.alb_security_group, ec2.Port.tcp(8000)
         )
 
-        self.file_system = efs.FileSystem(
+        self.database = rds.DatabaseInstance(
             self,
-            "FileSystem",
+            "Database",
+            engine=rds.DatabaseInstanceEngine.postgres(
+                version=rds.PostgresEngineVersion.VER_17,
+            ),
+            instance_type=ec2.InstanceType.of(
+                ec2.InstanceClass.BURSTABLE4_GRAVITON, ec2.InstanceSize.MICRO
+            ),
             vpc=self.vpc,
+            vpc_subnets=ec2.SubnetSelection(
+                subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
+            ),
+            database_name="gbp",
+            credentials=rds.Credentials.from_generated_secret("gbp"),
             removal_policy=RemovalPolicy.RETAIN,
-            performance_mode=efs.PerformanceMode.GENERAL_PURPOSE,
-            throughput_mode=efs.ThroughputMode.BURSTING,
+            deletion_protection=True,
         )
 
-        self.file_system.connections.allow_default_port_from(self.app_security_group)
-
-        self.access_point = self.file_system.add_access_point(
-            "AccessPoint",
-            path="/data",
-            create_acl=efs.Acl(owner_uid="1000", owner_gid="1000", permissions="755"),
-            posix_user=efs.PosixUser(uid="1000", gid="1000"),
-        )
+        self.database.connections.allow_default_port_from(self.app_security_group)

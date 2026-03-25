@@ -1,25 +1,27 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from gbp_server.models import Dataset, PretrainedModel, Result, Runner
-from sqlmodel import Session, select
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from gbp_server import db
+from gbp_server.models import Dataset, PretrainedModel, Result, Runner
+from gbp_server.schemas import ResultCreate, ResultRead
 
 router = APIRouter(prefix="/api/results", tags=["results"])
 
 
 @router.post("/", status_code=201)
 def create_result(
-    result: Result, session: Session = Depends(db.get_session)
+    data: ResultCreate, session: Session = Depends(db.get_session)
 ) -> dict[str, UUID]:
-    result = Result.model_validate(result)
-    if not session.get(Dataset, result.dataset_id):
+    if not session.get(Dataset, data.dataset_id):
         raise HTTPException(status_code=422, detail="Dataset not found")
-    if not session.get(PretrainedModel, result.pretrained_model_id):
+    if not session.get(PretrainedModel, data.pretrained_model_id):
         raise HTTPException(status_code=422, detail="Pretrained model not found")
-    if not session.get(Runner, result.runner_id):
+    if not session.get(Runner, data.runner_id):
         raise HTTPException(status_code=422, detail="Runner not found")
+    result = Result(**data.model_dump())
     session.add(result)
     session.commit()
     session.refresh(result)
@@ -29,44 +31,49 @@ def create_result(
 @router.get("/")
 def list_results(
     session: Session = Depends(db.get_session), tag: str | None = None
-) -> list[Result]:
+) -> list[ResultRead]:
     if tag:
-        dataset_ids = [
-            d.id for d in session.exec(select(Dataset)).all() if tag in d.tags
-        ]
-        return list(
-            session.exec(select(Result).where(Result.dataset_id.in_(dataset_ids))).all()  # type: ignore[unresolved-attribute]
+        datasets = session.execute(select(Dataset)).scalars().all()
+        dataset_ids = [d.id for d in datasets if tag in d.tags]
+        results = (
+            session.execute(select(Result).where(Result.dataset_id.in_(dataset_ids)))
+            .scalars()
+            .all()
         )
-    return list(session.exec(select(Result)).all())
+        return [ResultRead.model_validate(r) for r in results]
+    return [
+        ResultRead.model_validate(r)
+        for r in session.execute(select(Result)).scalars().all()
+    ]
 
 
 @router.get("/{id}")
-def get_result(id: UUID, session: Session = Depends(db.get_session)) -> Result:
+def get_result(id: UUID, session: Session = Depends(db.get_session)) -> ResultRead:
     result = session.get(Result, id)
     if not result:
         raise HTTPException(status_code=404, detail="Result not found")
-    return result
+    return ResultRead.model_validate(result)
 
 
 @router.put("/{id}")
 def update_result(
-    id: UUID, result: Result, session: Session = Depends(db.get_session)
-) -> Result:
+    id: UUID, data: ResultCreate, session: Session = Depends(db.get_session)
+) -> ResultRead:
     existing = session.get(Result, id)
     if not existing:
         raise HTTPException(status_code=404, detail="Result not found")
-    result = Result.model_validate(result)
-    if not session.get(Dataset, result.dataset_id):
+    if not session.get(Dataset, data.dataset_id):
         raise HTTPException(status_code=422, detail="Dataset not found")
-    if not session.get(PretrainedModel, result.pretrained_model_id):
+    if not session.get(PretrainedModel, data.pretrained_model_id):
         raise HTTPException(status_code=422, detail="Pretrained model not found")
-    if not session.get(Runner, result.runner_id):
+    if not session.get(Runner, data.runner_id):
         raise HTTPException(status_code=422, detail="Runner not found")
-    existing.sqlmodel_update(result.model_dump(exclude={"id"}))
+    for key, value in data.model_dump().items():
+        setattr(existing, key, value)
     session.add(existing)
     session.commit()
     session.refresh(existing)
-    return existing
+    return ResultRead.model_validate(existing)
 
 
 @router.delete("/{id}", status_code=204)

@@ -1,9 +1,13 @@
-from uuid import UUID, uuid4
+import uuid
 
-from sqlmodel import Field, SQLModel
+from sqlalchemy.orm import Mapped, mapped_column
+
+from gbp_server.models.base import Base
 
 
-class Encoder(SQLModel, table=True):
+class Encoder(Base):
     """A benchmarking encoder."""
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    __tablename__ = "encoder"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)

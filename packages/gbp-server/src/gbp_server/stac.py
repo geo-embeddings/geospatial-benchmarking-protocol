@@ -1,10 +1,11 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlmodel import Session, select
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-from gbp_server.models import Dataset
 from gbp_server import db
+from gbp_server.models import Dataset
 
 router = APIRouter(prefix="/stac", tags=["stac"])
 
@@ -18,7 +19,7 @@ CONFORMANCE_CLASSES = [
 
 
 def _get_all_tags(session: Session) -> list[str]:
-    datasets = session.exec(select(Dataset)).all()
+    datasets = session.execute(select(Dataset)).scalars().all()
     return sorted({tag for d in datasets for tag in (d.tags or [])})
 
 
@@ -155,7 +156,7 @@ def list_collections(
     request: Request, session: Session = Depends(db.get_session)
 ) -> dict[str, Any]:
     tags = _get_all_tags(session)
-    all_datasets = list(session.exec(select(Dataset)).all())
+    all_datasets = list(session.execute(select(Dataset)).scalars().all())
     collections = []
     for tag in tags:
         tagged = [d for d in all_datasets if tag in (d.tags or [])]
@@ -176,7 +177,7 @@ def list_collections(
 def get_collection(
     collection_id: str, request: Request, session: Session = Depends(db.get_session)
 ) -> dict[str, Any]:
-    all_datasets = list(session.exec(select(Dataset)).all())
+    all_datasets = list(session.execute(select(Dataset)).scalars().all())
     tagged = [d for d in all_datasets if collection_id in (d.tags or [])]
     if not tagged:
         raise HTTPException(status_code=404, detail="Collection not found")
@@ -187,7 +188,7 @@ def get_collection(
 def list_collection_items(
     collection_id: str, request: Request, session: Session = Depends(db.get_session)
 ) -> dict[str, Any]:
-    all_datasets = list(session.exec(select(Dataset)).all())
+    all_datasets = list(session.execute(select(Dataset)).scalars().all())
     tagged = [d for d in all_datasets if collection_id in (d.tags or [])]
     if not tagged and collection_id not in _get_all_tags(session):
         raise HTTPException(status_code=404, detail="Collection not found")
@@ -214,7 +215,7 @@ def get_collection_item(
     request: Request,
     session: Session = Depends(db.get_session),
 ) -> dict[str, Any]:
-    all_datasets = list(session.exec(select(Dataset)).all())
+    all_datasets = list(session.execute(select(Dataset)).scalars().all())
     match = [
         d
         for d in all_datasets
