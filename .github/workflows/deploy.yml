@@ -23,7 +23,7 @@ jobs:
         run: npm install -g aws-cdk
       - name: Install dependencies
         run: uv sync
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-west-2
