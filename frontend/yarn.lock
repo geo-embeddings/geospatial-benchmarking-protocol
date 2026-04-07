@@ -2546,7 +2546,7 @@ __metadata:
     react: ^19.2.4
     react-dom: ^19.2.4
     react-icons: ^5.6.0
-    react-router: ^7.13.2
+    react-router: ^7.14.0
     typescript: ~6.0.2
     typescript-eslint: ^8.58.0
     vite: ^8.0.3
@@ -3460,19 +3460,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router@npm:^7.13.2":
-  version: 7.13.2
-  resolution: "react-router@npm:7.13.2"
+"react-router@npm:^7.14.0":
+  version: 7.14.0
+  resolution: "react-router@npm:7.14.0"
   dependencies:
-    cookie: "npm:^1.0.1"
-    set-cookie-parser: "npm:^2.6.0"
+    cookie: ^1.0.1
+    set-cookie-parser: ^2.6.0
   peerDependencies:
     react: ">=18"
     react-dom: ">=18"
   peerDependenciesMeta:
     react-dom:
       optional: true
-  checksum: c7620565df0b444507cfceb76733adbd26e28a72fc4d52d344190bcb2e6483427313a3b6076c53d362e2682ccdb1262731bcaa6c3577cbbeea130291a38715f1
+  checksum: 8/ce771db65cd92916873e078972ef6d4c7bc91bfc9fb13e44a4439f374cd691f27208c1ba23d4b146c2c4d7432a716550a5c9d0fc6c43abce585f96cbd8ed23f6
   languageName: node
   linkType: hard
 
