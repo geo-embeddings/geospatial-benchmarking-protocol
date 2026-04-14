@@ -3,11 +3,11 @@ members = ["packages/*"]
 
 [dependency-groups]
 dev = [
-    "httpx>=0.28",
-    "pytest>=8",
-    "ruff>=0.15.7",
-    "testcontainers[postgres]>=4",
-    "ty>=0.0.24",
+    "httpx>=0.28.1",
+    "pytest>=9.0.3",
+    "ruff>=0.15.10",
+    "testcontainers[postgres]>=4.14.2",
+    "ty>=0.0.29",
 ]
 
 [tool.pytest]
